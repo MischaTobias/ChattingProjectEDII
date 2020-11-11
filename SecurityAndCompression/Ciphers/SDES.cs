@@ -96,6 +96,23 @@ namespace SecurityAndCompression.Ciphers
             var columns = Convert.ToInt32(key[1].ToString() + key[2].ToString(), 2);
             return matrix[rows, columns];
         }
+
+        private string XOR(string key1, string key2)
+        {
+            var result = string.Empty;
+            for (int i = 0; i < key1.Length; i++)
+            {
+                if ("1".Equals(key1[i]) && "1".Equals(key2[i]))
+                {
+                    result += "1";
+                }
+                else
+                {
+                    result += "0";
+                }
+            }
+            return result;
+        }
         #endregion
 
         public string EncryptFile(string savingPath, string completeFilePath, string key)
