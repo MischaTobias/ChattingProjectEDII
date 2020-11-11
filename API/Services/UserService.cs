@@ -1,4 +1,6 @@
-﻿using System;
+﻿using API.Models;
+using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,28 +11,28 @@ namespace API.Services
     {
         private readonly IMongoCollection<User> _users;
 
-        public ChatService(IChatDatabaseSettings settings)
+        public UserService(IUserDatabaseSettings settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
 
-            _chat = database.GetCollection<Message>(settings.ChatCollectionName);
+            _users = database.GetCollection<User>(settings.UserCollectionName);
         }
 
-        public List<Message> Get() => _chat.Find(message => true).ToList();
+        public List<User> Get() => _users.Find(user => true).ToList();
 
-        public Message Get(string id) => _chat.Find(message => message.Id == id).FirstOrDefault();
+        public User Get(string id) => _users.Find(user => user.Id == id).FirstOrDefault();
 
-        public Message Create(Message message)
+        public User Create(User user)
         {
-            _chat.InsertOne(message);
-            return message;
+            _users.InsertOne(user);
+            return user;
         }
 
-        public void Update(string id, Message messageIn) => _chat.ReplaceOne(message => message.Id == id, messageIn);
+        public void Update(string id, User userIn) => _users.ReplaceOne(user => user.Id == id, userIn);
 
-        public void Remove(Message messageIn) => _chat.DeleteOne(message => message.Id == messageIn.Id);
+        public void Remove(User userIn) => _users.DeleteOne(user => user.Id == userIn.Id);
 
-        public void Remove(string id) => _chat.DeleteOne(message => message.Id == id);
+        public void Remove(string id) => _users.DeleteOne(user => user.Id == id);
     }
 }

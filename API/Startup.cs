@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.Models;
+using API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -28,9 +29,11 @@ namespace API
         {
             services.Configure<UserDatabaseSettings>(Configuration.GetSection(nameof(UserDatabaseSettings)));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<UserDatabaseSettings>>().Value);
+            services.AddSingleton<UserService>();
 
             services.Configure<ChatDatabaseSettings>(Configuration.GetSection(nameof(ChatDatabaseSettings)));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<ChatDatabaseSettings>>().Value);
+            services.AddSingleton<ChatService>();
 
             services.AddControllers();
         }
