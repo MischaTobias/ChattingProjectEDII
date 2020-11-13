@@ -5,8 +5,10 @@ namespace SecurityAndCompression.Ciphers
 {
     class SDES : IEncryptor
     {
+        #region Variables
         private string K1;
         private string K2;
+        #endregion
 
         #region KeyGenerator
         private void GenerateKeys(string key)
@@ -115,6 +117,7 @@ namespace SecurityAndCompression.Ciphers
         }
         #endregion
 
+        #region FileEncryption
         public string EncryptFile(string savingPath, string completeFilePath, string key)
         {
             throw new NotImplementedException();
@@ -124,5 +127,18 @@ namespace SecurityAndCompression.Ciphers
         {
             throw new NotImplementedException();
         }
+        #endregion
+
+        #region StringEncryption
+        public string EncryptString(string text, string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string DecryptString(string text, string key)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

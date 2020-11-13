@@ -1,6 +1,6 @@
-﻿using ChattingDesign.Models;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using API.Models;
 
 namespace ChattingDesign.Controllers
 {
@@ -17,8 +17,8 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var newUser = new User() { Username = collection["Username"] };
-                newUser.SetPassword(collection["Password"]);
+                var newUser = new User() { Username = collection["Username"], Password = collection["Password"] };
+
                 return View();
             }
             catch
