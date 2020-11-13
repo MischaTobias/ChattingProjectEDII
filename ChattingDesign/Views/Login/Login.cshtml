@@ -1,6 +1,6 @@
 ﻿@model API.Models.User
 @{
-    ViewBag.Title = "Login";
+    ViewData["Title"] = "Login";
 }
 
 @{
@@ -24,14 +24,14 @@
     <br />
 
     <label>¿No tienes una cuenta?</label>
-    @Html.ActionLink("Regístrate", "Register", "Chatting")
+    @Html.ActionLink("Regístrate", "Register", "Login")
 </div>
 
 <style type="text/css">
-    .form{
+    .form {
         margin: 0 auto;
         width: 600px;
-        text-align:center;
+        text-align: center;
     }
 </style>
 

@@ -42,7 +42,7 @@ namespace ChattingDesign
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Chatting}/{action=Login}/{id?}");
+                    pattern: "{controller=Login}/{action=Login}/{id?}");
             });
         }
     }

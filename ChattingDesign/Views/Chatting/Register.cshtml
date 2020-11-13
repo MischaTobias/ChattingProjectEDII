@@ -1,6 +1,6 @@
 ﻿@model API.Models.User
 @{
-    ViewBag.Title = "Login";
+    ViewBag.Title = "Register";
 }
 
 @{
@@ -8,9 +8,9 @@
 }
 
 <div class="form">
-    @using (Html.BeginForm("Login", "Chatting", FormMethod.Post))
+    @using (Html.BeginForm("Register", "Chatting", FormMethod.Post))
     {
-        <h4><strong>Ingrese su usuario y contraseña</strong></h4>
+        <h4><strong>Ingrese un usuario y una contraseña</strong></h4>
         <h5>@Html.Label("Usuario")</h5>
         @Html.TextBoxFor(model => model.Username, new { placeholder = "Usuario" })
         <br />
@@ -19,19 +19,17 @@
         @Html.PasswordFor(model => model.Password, new { placeholder = "**********" })
         <br />
         <br />
-        <input type="submit" name="submit" value="Login" />
+        <input type="submit" name="submit" value="Registrar" />
     }
     <br />
-
-    <label>¿No tienes una cuenta?</label>
-    @Html.ActionLink("Regístrate", "Register", "Chatting")
 </div>
 
 <style type="text/css">
-    .form{
+    .form {
         margin: 0 auto;
         width: 600px;
-        text-align:center;
+        text-align: center;
     }
 </style>
+
 
