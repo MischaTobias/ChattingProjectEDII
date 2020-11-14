@@ -1,0 +1,17 @@
+﻿@model IEnumerable<API.Models.Message>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+@foreach (var item in Model)
+{
+    @Html.DisplayFor(modelItem => item.Sender)
+    @Html.DisplayFor(modelItem => item.Text)
+}

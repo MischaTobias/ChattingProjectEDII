@@ -5,7 +5,7 @@ using SecurityAndCompression.Incerfaces;
 
 namespace SecurityAndCompression.Ciphers
 {
-    class Cesar : IEncryptor
+    public class Cesar : IEncryptor
     {
         #region Variables
         Dictionary<byte, byte> CesarDictionary = new Dictionary<byte, byte>();

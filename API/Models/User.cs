@@ -11,5 +11,14 @@ namespace API.Models
 
         public string Username { get; set; }
         public string Password { get; set; }
+
+        public static bool CheckValidness(User user)
+        {
+            if (user.Username == "" || user.Password == "")
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
