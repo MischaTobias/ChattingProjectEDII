@@ -22,11 +22,11 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<UserDatabaseSettings>(Configuration.GetSection(nameof(UserDatabaseSettings)));
-            services.AddSingleton(sp => sp.GetRequiredService<IOptions<UserDatabaseSettings>>().Value);
+            services.AddSingleton<IUserDatabaseSettings>(sp => sp.GetRequiredService<IOptions<UserDatabaseSettings>>().Value);
             services.AddSingleton<UserService>();
 
             services.Configure<ChatDatabaseSettings>(Configuration.GetSection(nameof(ChatDatabaseSettings)));
-            services.AddSingleton(sp => sp.GetRequiredService<IOptions<ChatDatabaseSettings>>().Value);
+            services.AddSingleton<IChatDatabaseSettings>(sp => sp.GetRequiredService<IOptions<ChatDatabaseSettings>>().Value);
             services.AddSingleton<ChatService>();
 
             services.AddControllers();
