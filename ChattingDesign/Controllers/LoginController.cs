@@ -12,7 +12,7 @@ namespace ChattingDesign.Controllers
 {
     public class LoginController : Controller
     {
-        readonly string BaseUrl = "ngrok.io/.../User";
+        readonly string BaseUrl = "http://localhost:50389/api";
 
         public ActionResult Login()
         {
@@ -98,6 +98,7 @@ namespace ChattingDesign.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var list = JsonConvert.DeserializeObject<List<User>>(response.Content.ReadAsStringAsync().Result);
+                    return list;
                 }
                 return new List<User>();
             }
