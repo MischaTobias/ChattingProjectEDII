@@ -29,7 +29,11 @@ namespace API.Models
         {
             Username = name;
             Name = name;
-            SecretNumber = new Random().Next(0, 502);
+            SecretNumber = 0;
+            while (SecretNumber < 20)
+            {
+                SecretNumber = new Random().Next(0, 502);
+            }
             PublicKey = SDES.GetPublicKey(SecretNumber);
             var cipher = new Cesar();
             Password = cipher.EncryptString(password, "pass");
