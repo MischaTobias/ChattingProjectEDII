@@ -1,5 +1,9 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@model Conversation
+
+<br />
+<h2>@Html.DisplayFor(model => model.Receiver)</h2>
+<br />
+@foreach (var item in Model.Messages)
+{
+    <strong>@Html.DisplayFor(modelItem => item.Sender)</strong> <textarea>@Html.DisplayTextFor(modelItem => item.Text)</textarea>
 }

@@ -30,11 +30,11 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public ActionResult<User> Create(User user)
+        public IActionResult Create(User user)
         {
             _userService.Create(user);
 
-            return CreatedAtRoute("GetUser", new { id = user.Id.ToString() }, user);
+            return StatusCode(201);
         }
 
         [HttpPut("{id:length(24)}")]

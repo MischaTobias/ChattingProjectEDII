@@ -1,10 +1,11 @@
 ﻿using API.Models;
+using System.Net.Http;
 
 namespace ChattingDesign.Helpers
 {
     public class Storage
     {
-        public static Storage instance_;
+        private static Storage instance_;
 
         public static Storage Instance()
         {
@@ -16,5 +17,7 @@ namespace ChattingDesign.Helpers
         }
 
         public User CurrentUser { get; set; }
+        public HttpClient APIClient { get; set; }
+        public string EnvironmentPath { get; set; }
     }
 }

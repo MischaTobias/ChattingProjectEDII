@@ -6,7 +6,7 @@ using System.Security.Principal;
 
 namespace API.Models
 {
-    public class User : IIdentity
+    public class User
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -15,20 +15,18 @@ namespace API.Models
         public string Username { get; set; }
         public string Password { get; set; }
 
-        public string Name { get; set; }
-
         public int SecretNumber { get; set; }
 
         public int PublicKey { get; set; }
 
-        public string AuthenticationType { get; set; }
+        public User()
+        {
 
-        public bool IsAuthenticated { get; set; }
+        }
 
         public User(string name, string password)
         {
             Username = name;
-            Name = name;
             SecretNumber = 0;
             while (SecretNumber < 20)
             {
@@ -37,6 +35,7 @@ namespace API.Models
             PublicKey = SDES.GetPublicKey(SecretNumber);
             var cipher = new Cesar();
             Password = cipher.EncryptString(password, "pass");
+            Password = password;
         }
 
         public static bool CheckValidness(User user)

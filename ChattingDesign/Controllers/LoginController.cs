@@ -8,12 +8,19 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
 using ChattingDesign.Helpers;
+using System;
 
 namespace ChattingDesign.Controllers
 {
     public class LoginController : Controller
     {
-        readonly string BaseUrl = "http://localhost:50489/api";
+        public LoginController()
+        {
+            Storage.Instance().EnvironmentPath = Environment.CurrentDirectory;
+            Storage.Instance().APIClient = new HttpClient() { BaseAddress = new Uri("http://localhost:50489/api/") };
+            Storage.Instance().APIClient.DefaultRequestHeaders.Clear();
+            Storage.Instance().APIClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        }
 
         public ActionResult Login()
         {
@@ -34,11 +41,10 @@ namespace ChattingDesign.Controllers
                 if (API.Models.User.CheckValidness(newUser))
                 {
                     //Mandar a verificar los datos con la API
-                    var users = GetUsers().Where(user => user.Username == newUser.Username && user.Password == newUser.Password).ToList();
+                    var users = GetUsers().Result.Where(user => user.Username == newUser.Username && user.Password == newUser.Password).ToList();
                     if (users.Count() != 0)
                     {
-                        newUser.IsAuthenticated = true;
-                        HttpContext.Items["CurrentUser"] = newUser.Username;
+                        HttpContext.Session.SetString("CurrentUser", newUser.Username);
                         Storage.Instance().CurrentUser = newUser;
                         return RedirectToAction("Index", "Chatting");
                     }
@@ -67,18 +73,12 @@ namespace ChattingDesign.Controllers
             {
                 var newUser = new User(collection["Username"], collection["Password"]);
                 //Mandar a registrar los datos con la API
-                var users = GetUsers().Where(user => user.Username.Equals(newUser.Username));
+                var users = GetUsers().Result.Where(user => user.Username == newUser.Username);
                 if (users.Count() == 0)
                 {
-                    using var client = new HttpClient
-                    {
-                        BaseAddress = new System.Uri(BaseUrl)
-                    };
-                    var relativeAddress = "api/User";
-                    var jsonUser = JsonConvert.SerializeObject(newUser);
-                    var response = await client.PostAsync(relativeAddress, new StringContent(jsonUser, Encoding.UTF8, "application/json"));
+                    await Storage.Instance().APIClient.PostAsJsonAsync("User", newUser);
                 }
-                return View();
+                return RedirectToAction("Login");
             }
             catch
             {
@@ -86,17 +86,12 @@ namespace ChattingDesign.Controllers
             }
         }
 
-        private List<User> GetUsers()
+        private async Task<List<User>> GetUsers()
         {
             try
             {
                 var users = new List<User>();
-                using var client = new HttpClient
-                {
-                    BaseAddress = new System.Uri(BaseUrl)
-                };
-                var relativeAddress = "api/User";
-                var response = client.GetAsync(relativeAddress).Result;
+                var response = await Storage.Instance().APIClient.GetAsync("User");
                 if (response.IsSuccessStatusCode)
                 {
                     return JsonConvert.DeserializeObject<List<User>>(response.Content.ReadAsStringAsync().Result);
