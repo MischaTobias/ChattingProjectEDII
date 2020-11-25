@@ -1,5 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using SecurityAndCompression.Ciphers;
+using System;
 using System.Security.Principal;
 
 namespace API.Models
@@ -15,9 +17,23 @@ namespace API.Models
 
         public string Name { get; set; }
 
+        public int SecretNumber { get; set; }
+
+        public int PublicKey { get; set; }
+
         public string AuthenticationType { get; set; }
 
         public bool IsAuthenticated { get; set; }
+
+        public User(string name, string password)
+        {
+            Username = name;
+            Name = name;
+            SecretNumber = new Random().Next(0, 502);
+            PublicKey = SDES.GetPublicKey(SecretNumber);
+            var cipher = new Cesar();
+            Password = cipher.EncryptString(password, "pass");
+        }
 
         public static bool CheckValidness(User user)
         {

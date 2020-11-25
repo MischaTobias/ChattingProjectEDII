@@ -3,7 +3,7 @@ using System;
 
 namespace SecurityAndCompression.Ciphers
 {
-    class SDES : IEncryptor
+    public class SDES : IEncryptor
     {
         #region Variables
         private string K1;
@@ -15,12 +15,24 @@ namespace SecurityAndCompression.Ciphers
         #region KeyGenerator&Permutations
         public static int GetSecretKey(int userSecretRandom, int destinyPublicKey)
         {
-            return (int)Math.Pow(destinyPublicKey, userSecretRandom) % PrimeNumber;
+            int secretKey = destinyPublicKey;
+            for (int i = 0; i < userSecretRandom; i++)
+            {
+                secretKey *= destinyPublicKey;
+                secretKey %= PrimeNumber;
+            }
+            return secretKey;
         }
 
         public static int GetPublicKey(int userSecretRandom)
         {
-            return (int)Math.Pow(GeneratorNumber, userSecretRandom) % PrimeNumber;
+            int publicKey = GeneratorNumber;
+            for (int i = 0; i < userSecretRandom; i++)
+            {
+                publicKey *= GeneratorNumber;
+                publicKey %= PrimeNumber;
+            }
+            return publicKey;
         }
 
         private void GenerateKeys(string key)

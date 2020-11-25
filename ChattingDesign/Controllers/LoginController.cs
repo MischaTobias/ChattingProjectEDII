@@ -29,16 +29,10 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var newUser = new User() { 
-                    Username = collection["Username"],
-                    Password = collection["Password"],
-                    Name = collection["Username"],
-                };
+                var newUser = new User(collection["Username"], collection["Password"]);
                 if (API.Models.User.CheckValidness(newUser))
                 {
                     //Mandar a verificar los datos con la API
-                    var cipher = new SecurityAndCompression.Ciphers.Cesar();
-                    newUser.Password = cipher.EncryptString(newUser.Password, "pass");
                     var users = GetUsers().Where(user => user.Username == newUser.Username && user.Password == newUser.Password).ToList();
                     if (users.Count() != 0)
                     {
@@ -69,9 +63,7 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var newUser = new User() { Username = collection["Username"], Password = collection["Password"] };
-                var cipher = new SecurityAndCompression.Ciphers.Cesar();
-                newUser.Password = cipher.EncryptString(newUser.Password, "pass");
+                var newUser = new User(collection["Username"], collection["Password"]);
                 //Mandar a registrar los datos con la API
                 var users = GetUsers().Where(user => user.Username.Equals(newUser.Username));
                 if (users.Count() == 0)
