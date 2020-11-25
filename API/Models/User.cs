@@ -1,9 +1,10 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Security.Principal;
 
 namespace API.Models
 {
-    public class User
+    public class User : IIdentity
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -11,6 +12,12 @@ namespace API.Models
 
         public string Username { get; set; }
         public string Password { get; set; }
+
+        public string Name { get; set; }
+
+        public string AuthenticationType { get; set; }
+
+        public bool IsAuthenticated { get; set; }
 
         public static bool CheckValidness(User user)
         {

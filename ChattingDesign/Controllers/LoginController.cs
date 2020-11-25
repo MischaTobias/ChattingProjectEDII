@@ -12,7 +12,7 @@ namespace ChattingDesign.Controllers
 {
     public class LoginController : Controller
     {
-        readonly string BaseUrl = "http://localhost:50389/api";
+        readonly string BaseUrl = "http://localhost:50489/api";
 
         public ActionResult Login()
         {
@@ -29,15 +29,21 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var newUser = new User() { Username = collection["Username"], Password = collection["Password"] };
+                var newUser = new User() { 
+                    Username = collection["Username"],
+                    Password = collection["Password"],
+                    Name = collection["Username"],
+                };
                 if (API.Models.User.CheckValidness(newUser))
                 {
                     //Mandar a verificar los datos con la API
                     var cipher = new SecurityAndCompression.Ciphers.Cesar();
                     newUser.Password = cipher.EncryptString(newUser.Password, "pass");
-                    var users = GetUsers().Where(user => user.Username.Equals(newUser.Username) && user.Password.Equals(newUser.Password));
+                    var users = GetUsers().Where(user => user.Username == newUser.Username && user.Password == newUser.Password).ToList();
                     if (users.Count() != 0)
                     {
+                        newUser.IsAuthenticated = true;
+                        HttpContext.User = new System.Security.Claims.ClaimsPrincipal(newUser);
                         return RedirectToAction("Index", "Chatting");
                     }
                     else
@@ -64,6 +70,8 @@ namespace ChattingDesign.Controllers
             try
             {
                 var newUser = new User() { Username = collection["Username"], Password = collection["Password"] };
+                var cipher = new SecurityAndCompression.Ciphers.Cesar();
+                newUser.Password = cipher.EncryptString(newUser.Password, "pass");
                 //Mandar a registrar los datos con la API
                 var users = GetUsers().Where(user => user.Username.Equals(newUser.Username));
                 if (users.Count() == 0)
