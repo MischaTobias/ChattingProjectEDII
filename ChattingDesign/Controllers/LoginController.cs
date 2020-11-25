@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using ChattingDesign.Helpers;
 
 namespace ChattingDesign.Controllers
 {
@@ -29,7 +30,7 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var newUser = new User(collection["Username"], collection["Password"]);
+                var newUser = new User(collection["username"], collection["password"]);
                 if (API.Models.User.CheckValidness(newUser))
                 {
                     //Mandar a verificar los datos con la API
@@ -37,7 +38,8 @@ namespace ChattingDesign.Controllers
                     if (users.Count() != 0)
                     {
                         newUser.IsAuthenticated = true;
-                        HttpContext.User = new System.Security.Claims.ClaimsPrincipal(newUser);
+                        HttpContext.Items["CurrentUser"] = newUser.Username;
+                        Storage.Instance().CurrentUser = newUser;
                         return RedirectToAction("Index", "Chatting");
                     }
                     else
@@ -97,8 +99,7 @@ namespace ChattingDesign.Controllers
                 var response = client.GetAsync(relativeAddress).Result;
                 if (response.IsSuccessStatusCode)
                 {
-                    var list = JsonConvert.DeserializeObject<List<User>>(response.Content.ReadAsStringAsync().Result);
-                    return list;
+                    return JsonConvert.DeserializeObject<List<User>>(response.Content.ReadAsStringAsync().Result);
                 }
                 return new List<User>();
             }
