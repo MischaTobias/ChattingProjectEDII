@@ -97,9 +97,9 @@ namespace ChattingDesign.Controllers
         }
 
         [HttpPost]
-        public ActionResult UploadFile(IFormFile formFile)
+        public ActionResult UploadFile(IFormFile file)
         {
-            var file = formFile;
+            var uploadedFile = file;
             return RedirectToAction("Chat");
         }
 

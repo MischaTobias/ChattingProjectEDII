@@ -40,5 +40,13 @@
     </li>
     <li class="list-group-item flex-fill">
         <h6>Enviar archivo</h6>
+        @using (Html.BeginForm("UploadFile", "Chatting", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div>
+                @Html.TextBox("file", "", new { type = "file" }) <br />
+
+                <input type="submit" value="Upload" />
+            </div>
+        }
     </li>
 </ul>
