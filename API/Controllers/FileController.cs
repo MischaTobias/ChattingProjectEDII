@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -27,7 +28,8 @@ namespace API.Controllers
                 return StatusCode(500);
             }
             var physicalPath = $"{Environment.ContentRootPath}/Uploads/{pathMessage.Text}";
-            return PhysicalFile(physicalPath, MediaTypeNames.Text.Plain);
+            var fileStream = new FileStream(physicalPath, FileMode.Open);
+            return File(fileStream, "text/html");
         }
 
         [HttpPost]

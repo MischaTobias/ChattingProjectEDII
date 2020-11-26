@@ -128,6 +128,7 @@ namespace ChattingDesign.Controllers
                 var pathMessage = new Message() { Text = path };
 
                 var result = await Storage.Instance().APIClient.PostAsJsonAsync("File/GetFile", pathMessage);
+                var fileForDownloading = await result.Content.ReadAsStreamAsync();
 
                 var fileMessage = new Message()
                 {
