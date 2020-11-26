@@ -32,6 +32,13 @@ namespace ChattingDesign.Controllers
             return View();
         }
 
+        public ActionResult LogOut()
+        {
+            HttpContext.Session.SetString("CurrentUser", string.Empty);
+            HttpContext.Session.SetString("CurrentReceiver", string.Empty);
+            return RedirectToAction("Login");
+        }
+
         [HttpPost]
         public ActionResult Login(IFormCollection collection)
         {

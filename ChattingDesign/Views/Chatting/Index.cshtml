@@ -5,7 +5,8 @@
 }
 
 <h2>Escoge alguien para chatear</h2>
-
+<div style="text-align:right">@Html.ActionLink("Cerrar sesión", "LogOut", "Login")</div>
+<br />
 <ul class="list-group">
     @foreach (var item in Model)
     {
