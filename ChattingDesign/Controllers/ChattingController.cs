@@ -22,7 +22,7 @@ namespace ChattingDesign.Controllers
             return View(listOfUsers);
         }
 
-        public ActionResult Chat(string? receiver)
+        public ActionResult Chat(string receiver)
         {
             if (receiver != null)
             {
