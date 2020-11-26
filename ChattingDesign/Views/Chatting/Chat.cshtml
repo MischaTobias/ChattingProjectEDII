@@ -3,17 +3,30 @@
 <br />
 <h2 style="text-align:center">@Html.DisplayFor(model => model.Receiver)</h2>
 <br />
+@using (Html.BeginForm("SearchMessages", "Chatting", FormMethod.Post))
+{
+    <form>
+        <div class="form-group">
+            <label for="Message">Ingresa un valor a buscar</label>
+            <input type="text" class="form-control" name="SearchedValue" placeholder="Ingresar mensaje">
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar mensaje</button>
+    </form>
+}
+
 @using (Html.BeginForm("Chat", "Chatting", FormMethod.Post))
 {
-<form>
-    <div class="form-group">
-        <label for="Message">Ingresa un mensaje a enviar</label>
-        <input type="text" class="form-control" name="Message" placeholder="Ingresar mensaje">
-    </div>
-    <button type="submit" class="btn btn-primary">Enviar mensaje</button>
-    <div style="text-align:right">@Html.ActionLink("Cargar Mensajes", "Chat", new { receiver = Model.Receiver })</div>
-</form>
+    <form>
+        <div class="form-group">
+            <label for="Message">Ingresa un mensaje a enviar</label>
+            <input type="text" class="form-control" name="Message" placeholder="Ingresar mensaje">
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+        <div style="text-align:right">@Html.ActionLink("Cargar Mensajes", "Chat", new { receiver = Model.Receiver })</div>
+    </form>
 }
+
+
 <ul>
     @foreach (var item in Model.Messages)
     {

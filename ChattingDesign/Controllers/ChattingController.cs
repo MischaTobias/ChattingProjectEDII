@@ -61,6 +61,41 @@ namespace ChattingDesign.Controllers
             }
         }
 
+        public ActionResult SearchMessages(string receiver, string searchedValue)
+        {
+            if (receiver != null)
+            {
+                HttpContext.Session.SetString("CurrentReceiver", receiver);
+            }
+            else
+            {
+                receiver = HttpContext.Session.GetString("CurrentReceiver");
+            }
+            var searchedMessages = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver);
+            searchedMessages = searchedMessages.Where(message => message.Text.Contains(searchedValue)).ToList();
+            var conversation = new Conversation(searchedMessages, receiver, searchedValue);
+            return View(conversation);
+        }
+
+        [HttpPost]
+        public ActionResult SearchMessages(IFormCollection collection)
+        {
+            try
+            {
+                var searched = collection["SearchedValue"];
+                if (searched == string.Empty)
+                {
+                    return RedirectToAction("Chat");
+                }
+                var receiverUser = HttpContext.Session.GetString("CurrentReceiver");
+                return RedirectToAction("SearchMessages", new { receiver = receiverUser, searchedValue = searched });
+            }
+            catch
+            {
+                return RedirectToAction("Chat");
+            }
+        }
+
         private List<User> GetUsers()
         {
             try
