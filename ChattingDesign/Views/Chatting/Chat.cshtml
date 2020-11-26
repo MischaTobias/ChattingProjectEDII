@@ -1,9 +1,25 @@
 ﻿@model Conversation
 
 <br />
-<h2>@Html.DisplayFor(model => model.Receiver)</h2>
+<h2 style="text-align:center">@Html.DisplayFor(model => model.Receiver)</h2>
 <br />
-@foreach (var item in Model.Messages)
+@using (Html.BeginForm("Chat", "Chatting", FormMethod.Post))
 {
-    <strong>@Html.DisplayFor(modelItem => item.Sender)</strong> <textarea>@Html.DisplayTextFor(modelItem => item.Text)</textarea>
+<form>
+    <div class="form-group">
+        <label for="Message">Ingresa un mensaje a enviar</label>
+        <input type="text" class="form-control" name="Message" placeholder="Ingresar mensaje">
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+    <div style="text-align:right">@Html.ActionLink("Cargar Mensajes", "Chat", new { receiver = Model.Receiver })</div>
+</form>
 }
+<ul>
+    @foreach (var item in Model.Messages)
+    {
+        <li>
+            <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
+            @Html.DisplayTextFor(modelItem => item.Text)
+        </li>
+    }
+</ul>

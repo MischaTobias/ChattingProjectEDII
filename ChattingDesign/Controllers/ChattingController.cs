@@ -4,43 +4,60 @@ using ChattingDesign.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SecurityAndCompression.Ciphers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace ChattingDesign.Controllers
 {
     public class ChattingController : Controller
     {
-        readonly string BaseUrl = "http://localhost:50489/api";
         // GET: ChattingController
         public ActionResult Index()
         {
-            var usuario = HttpContext.Session.GetString("CurrentUser");
-            var listOfUsers = GetUsers().Where(user => user.Username != Storage.Instance().CurrentUser.Username);
+            var listOfUsers = GetUsers().Where(user => user.Username != HttpContext.Session.GetString("CurrentUser"));
             return View(listOfUsers);
         }
 
-        public ActionResult Chat(string receiver)
+        public ActionResult Chat(string? receiver)
         {
-            var conversation = new Conversation()
+            if (receiver != null)
             {
-                Messages = GetMessages(Storage.Instance().CurrentUser.Username, receiver),
-                Receiver = receiver
-            };
+                HttpContext.Session.SetString("CurrentReceiver", receiver);
+            }
+            else
+            {
+                receiver = HttpContext.Session.GetString("CurrentReceiver");
+            }
+            var conversation = new Conversation(GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver), receiver);
             return View(conversation);
         }
 
         [HttpPost]
-        public ActionResult Chat(IFormCollection collection)
+        public async Task<ActionResult> Chat(IFormCollection collection)
         {
             try
             {
-                return View();
+                var message = collection["Message"];
+                if (message == string.Empty)
+                {
+                    return RedirectToAction("Chat");
+                }
+                var currentUser = HttpContext.Session.GetString("CurrentUser");
+                var receiver = HttpContext.Session.GetString("CurrentReceiver");
+                var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
+                var cipher = new SDES();
+                var cipheredMessage = cipher.EncryptString(message, Convert.ToString(SDESKey, 2));
+                var messageForUpload = new Message() { Receiver = receiver, Sender = currentUser, Text = cipheredMessage };
+                await Storage.Instance().APIClient.PostAsJsonAsync("Chat", messageForUpload);
+                return RedirectToAction("Chat");
             }
             catch
             {
-                return View();
+                return RedirectToAction("Chat");
             }
         }
 
@@ -49,12 +66,7 @@ namespace ChattingDesign.Controllers
             try
             {
                 var users = new List<User>();
-                using var client = new HttpClient
-                {
-                    BaseAddress = new System.Uri(BaseUrl)
-                };
-                var relativeAddress = "api/User";
-                var response = client.GetAsync(relativeAddress).Result;
+                var response = Storage.Instance().APIClient.GetAsync("User").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     return JsonConvert.DeserializeObject<List<User>>(response.Content.ReadAsStringAsync().Result);
@@ -67,21 +79,56 @@ namespace ChattingDesign.Controllers
             }
         }
 
-        private List<Message> GetMessages(string user1, string user2)
+        private int GetUserPublicKey(string username)
+        {
+            try
+            {
+                var user = GetUsers().FirstOrDefault(user => user.Username == username);
+                return user.PublicKey;
+            }
+            catch 
+            {
+                return 0;
+            }
+        }
+
+        private int GetUserSecretNumber(string username)
+        {
+            try
+            {
+                var user = GetUsers().FirstOrDefault(user => user.Username == username);
+                return user.SecretNumber;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private List<Message> GetMessages(string currentUser, string receiver)
         {
             try
             {
                 var messages = new List<Message>();
-                using var client = new HttpClient()
-                {
-                    BaseAddress = new System.Uri(BaseUrl)
-                };
-                var relativeAddress = "api/Chat";
-                var response = client.GetAsync(relativeAddress).Result;
+                var response = Storage.Instance().APIClient.GetAsync("Chat").Result;
                 if (response.IsSuccessStatusCode)
                 {
                     var messageList = JsonConvert.DeserializeObject<List<Message>>(response.Content.ReadAsStringAsync().Result);
-                    return (List<Message>)messageList.Where(message => (message.Sender == user1 || message.Sender == user2) && (message.Receiver == user2 || message.Receiver == user1));
+                    var conversationMessages = messageList.Where(m => (m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser)).ToList();
+                    if (conversationMessages.Count != 0)
+                    {
+                        var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
+                        var cipher = new SDES();
+                        foreach (var message in conversationMessages)
+                        {
+                            message.Text = cipher.DecryptString(message.Text, Convert.ToString(SDESKey, 2));
+                        }
+                        return conversationMessages;
+                    }
+                    else
+                    {
+                        return new List<Message>();
+                    }
                 }
                 return new List<Message>();
             }

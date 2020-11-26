@@ -11,7 +11,7 @@
     {
         <li class="list-group-item d-flex justify-content-between align-items-center">
             @Html.DisplayFor(modelItem => item.Username)
-            <span>@Html.ActionLink("Chat", "Chat", new { userName = item.Username })</span>
+            <span>@Html.ActionLink("Chat", "Chat", new { receiver = item.Username })</span>
         </li>
     }
 </ul>

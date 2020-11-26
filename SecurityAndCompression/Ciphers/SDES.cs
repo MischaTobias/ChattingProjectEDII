@@ -84,6 +84,10 @@ namespace SecurityAndCompression.Ciphers
 
         private string InitialPermutation(string key)
         {
+            while (key.Length < 8)
+            {
+                key = '0' + key;
+            }
             var result = key[4].ToString() + key[5].ToString() + key[7].ToString() + key[6].ToString() + key[3].ToString() +
                 key[1].ToString() + key[0].ToString() + key[2].ToString();
             return result;
@@ -140,7 +144,7 @@ namespace SecurityAndCompression.Ciphers
             var result = string.Empty;
             for (int i = 0; i < key1.Length; i++)
             {
-                if ('1' == key1[i] && '1' == key2[i])
+                if (key1[i] != key2[i] && (key1[i] == '1' || key2[i] == '1'))
                 {
                     result += "1";
                 }
@@ -186,7 +190,7 @@ namespace SecurityAndCompression.Ciphers
                 XORK = XOR(EPResult, K2);
                 SwapBoxResult = SwapBoxLeft(XORK.Substring(0, XORK.Length / 2)) + SwapBoxRight(XORK.Substring(XORK.Length / 2, XORK.Length / 2));
                 XORLeft = XOR(SwapBoxResult, Left);
-                result += Convert.ToByte(InverseInitialPermutation(XORLeft + Right), 2);
+                result += (char)Convert.ToByte(InverseInitialPermutation(XORLeft + Right), 2);
             }
             return result;
         }
@@ -211,7 +215,7 @@ namespace SecurityAndCompression.Ciphers
                 XORK = XOR(EPResult, K1);
                 SwapBoxResult = SwapBoxLeft(XORK.Substring(0, XORK.Length / 2)) + SwapBoxRight(XORK.Substring(XORK.Length / 2, XORK.Length / 2));
                 XORLeft = XOR(SwapBoxResult, Left);
-                result += Convert.ToByte(InverseInitialPermutation(XORLeft + Right), 2);
+                result += (char)Convert.ToByte(InverseInitialPermutation(XORLeft + Right), 2);
             }
             return result;
         }

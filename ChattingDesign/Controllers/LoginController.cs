@@ -45,7 +45,6 @@ namespace ChattingDesign.Controllers
                     if (users.Count() != 0)
                     {
                         HttpContext.Session.SetString("CurrentUser", newUser.Username);
-                        Storage.Instance().CurrentUser = newUser;
                         return RedirectToAction("Index", "Chatting");
                     }
                     else
@@ -71,6 +70,13 @@ namespace ChattingDesign.Controllers
         {
             try
             {
+                var one = collection["Password"];
+                var two = collection["confirmPassword"];
+                if (collection["password"] != collection["confirmPassword"])
+                {
+                    //Mostrar error
+                    return View();
+                }
                 var newUser = new User(collection["Username"], collection["Password"]);
                 //Mandar a registrar los datos con la API
                 var users = GetUsers().Result.Where(user => user.Username == newUser.Username);

@@ -16,7 +16,6 @@ namespace ChattingDesign.Helpers
             return instance_;
         }
 
-        public User CurrentUser { get; set; }
         public HttpClient APIClient { get; set; }
         public string EnvironmentPath { get; set; }
     }
