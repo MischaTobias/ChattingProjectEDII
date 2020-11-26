@@ -7,7 +7,7 @@
 {
     <form>
         <div class="form-group">
-            <label for="Message">Ingresa un valor a buscar</label>
+            <label for="Message">Ingresa un mensaje a buscar</label>
             <input type="text" class="form-control" name="SearchedValue" placeholder="Ingresar mensaje">
         </div>
         <button type="submit" class="btn btn-primary">Buscar mensaje</button>
@@ -26,13 +26,19 @@
     </form>
 }
 
-
-<ul>
-    @foreach (var item in Model.Messages)
-    {
-        <li>
-            <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
-            @Html.DisplayTextFor(modelItem => item.Text)
-        </li>
-    }
+<ul class="list-group list-group-horizontal">
+    <li class="list-group-item flex-fill">
+        <ul>
+            @foreach (var item in Model.Messages)
+            {
+                <li>
+                    <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
+                    @Html.DisplayTextFor(modelItem => item.Text)
+                </li>
+            }
+        </ul>
+    </li>
+    <li class="list-group-item flex-fill">
+        <h6>Enviar archivo</h6>
+    </li>
 </ul>

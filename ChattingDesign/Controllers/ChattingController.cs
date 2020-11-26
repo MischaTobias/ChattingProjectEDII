@@ -96,6 +96,13 @@ namespace ChattingDesign.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult UploadFile(IFormFile formFile)
+        {
+            var file = formFile;
+            return RedirectToAction("Chat");
+        }
+
         private List<User> GetUsers()
         {
             try
