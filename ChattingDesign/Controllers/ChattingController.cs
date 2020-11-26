@@ -97,10 +97,17 @@ namespace ChattingDesign.Controllers
         }
 
         [HttpPost]
-        public ActionResult UploadFile(IFormFile file)
+        public async Task<ActionResult> UploadFileAsync(IFormFile file)
         {
-            var uploadedFile = file;
-            return RedirectToAction("Chat");
+            try
+            {
+                var savedFileRoute = await FileManager.SaveFileAsync(file, Storage.Instance().EnvironmentPath);
+                return RedirectToAction("Chat");
+            }
+            catch
+            {
+                return RedirectToAction("Chat");
+            }
         }
 
         private List<User> GetUsers()
