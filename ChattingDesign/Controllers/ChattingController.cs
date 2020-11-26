@@ -115,15 +115,20 @@ namespace ChattingDesign.Controllers
                 }
                 var currentUser = HttpContext.Session.GetString("CurrentUser");
                 var receiver = HttpContext.Session.GetString("CurrentReceiver");
-                var savedFileRoute = await FileManager.SaveFileAsync(file, Storage.Instance().EnvironmentPath);
+                var savedFileRoute = await FileManager.SaveFileAsync(file, Storage.Instance().EnvironmentPath, false);
                 var fileStream = System.IO.File.OpenRead(savedFileRoute);
                 var multiForm = new MultipartFormDataContent
                 {
                     { new StreamContent(fileStream), "file", Path.GetFileName(savedFileRoute) }
                 };
                 var response = await Storage.Instance().APIClient.PostAsync("File", multiForm);
-                var result = response.ReasonPhrase;
-                
+                var path = await response.Content.ReadAsStringAsync();
+                path = path.Remove(0, 1);
+                path = path.Remove(path.Length - 1, 1);
+                var pathMessage = new Message() { Text = path };
+
+                var result = await Storage.Instance().APIClient.PostAsJsonAsync("File/GetFile", pathMessage);
+
                 var fileMessage = new Message()
                 {
                     IsFile = true,

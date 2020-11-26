@@ -20,15 +20,24 @@ namespace API.Controllers
 
         [HttpPost]
         [Route("GetFile")]
-        public IActionResult GetFileFromPath(string path)
+        public IActionResult GetFileFromPath(Message pathMessage)
         {
-            return PhysicalFile(path, MediaTypeNames.Text.Plain);
+            if (pathMessage.Text == null)
+            {
+                return StatusCode(500);
+            }
+            var physicalPath = $"{Environment.ContentRootPath}/Uploads/{pathMessage.Text}";
+            return PhysicalFile(physicalPath, MediaTypeNames.Text.Plain);
         }
 
         [HttpPost]
         public async Task<IActionResult> UploadFileAsync(IFormFile file)
         {
-            var savedFilePath = await FileManager.SaveFileAsync(file, Environment.ContentRootPath);
+            if (file == null)
+            {
+                return StatusCode(500);
+            }
+            var savedFilePath = await FileManager.SaveFileAsync(file, Environment.ContentRootPath, true);
             return StatusCode(201, savedFilePath);
         }
     }

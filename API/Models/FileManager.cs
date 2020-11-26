@@ -6,7 +6,7 @@ namespace API.Models
 {
     public class FileManager
     {
-        public static async Task<string> SaveFileAsync(IFormFile file, string path)
+        public static async Task<string> SaveFileAsync(IFormFile file, string path, bool getFileName)
         {
             var name = Path.GetFileNameWithoutExtension(file.FileName);
             var originalName = Path.GetFileNameWithoutExtension(file.FileName);
@@ -28,7 +28,12 @@ namespace API.Models
             using var saver = new FileStream($"{path}/Uploads/{name}{ext}", FileMode.OpenOrCreate);
             await file.CopyToAsync(saver);
             saver.Close();
+            if (getFileName)
+            {
+                return $"{name}{ext}";
+            }
             return $"{path}/Uploads/{name}{ext}";
+
         }
     }
 }
