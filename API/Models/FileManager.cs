@@ -8,21 +8,27 @@ namespace API.Models
     {
         public static async Task<string> SaveFileAsync(IFormFile file, string path)
         {
+            var name = Path.GetFileNameWithoutExtension(file.FileName);
+            var originalName = Path.GetFileNameWithoutExtension(file.FileName);
+            var ext = Path.GetExtension(file.FileName);
+            var cont = 1;
             if (Directory.Exists($"{path}/Uploads"))
             {
-                if (File.Exists($"{path}/Uploads/{file.FileName}"))
+                while (File.Exists($"{path}/Uploads/{name}{ext}"))
                 {
-                    File.Delete($"{path}/Uploads/{file.FileName}");
+                    name = originalName;
+                    name += $" ({cont})";
+                    cont++;
                 }
             }
             else
             {
                 Directory.CreateDirectory($"{path}/Uploads");
             }
-            using var saver = new FileStream($"{path}/Uploads/{file.FileName}", FileMode.OpenOrCreate);
+            using var saver = new FileStream($"{path}/Uploads/{name}{ext}", FileMode.OpenOrCreate);
             await file.CopyToAsync(saver);
             saver.Close();
-            return $"{path}/Uploads/{file.FileName}";
+            return $"{path}/Uploads/{name}{ext}";
         }
     }
 }

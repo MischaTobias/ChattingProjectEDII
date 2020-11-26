@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using SecurityAndCompression.Ciphers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -32,7 +33,9 @@ namespace ChattingDesign.Controllers
             {
                 receiver = HttpContext.Session.GetString("CurrentReceiver");
             }
-            var conversation = new Conversation(GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver), receiver);
+            var messages = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver, false);
+            var file = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver, true);
+            var conversation = new Conversation(messages, receiver);
             return View(conversation);
         }
 
@@ -51,7 +54,12 @@ namespace ChattingDesign.Controllers
                 var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
                 var cipher = new SDES();
                 var cipheredMessage = cipher.EncryptString(message, Convert.ToString(SDESKey, 2));
-                var messageForUpload = new Message() { Receiver = receiver, Sender = currentUser, Text = cipheredMessage };
+                var messageForUpload = new Message() { 
+                    Receiver = receiver, 
+                    IsFile = false, 
+                    Sender = currentUser, 
+                    Text = cipheredMessage
+                };
                 await Storage.Instance().APIClient.PostAsJsonAsync("Chat", messageForUpload);
                 return RedirectToAction("Chat");
             }
@@ -71,7 +79,7 @@ namespace ChattingDesign.Controllers
             {
                 receiver = HttpContext.Session.GetString("CurrentReceiver");
             }
-            var searchedMessages = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver);
+            var searchedMessages = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver, false);
             searchedMessages = searchedMessages.Where(message => message.Text.Contains(searchedValue)).ToList();
             var conversation = new Conversation(searchedMessages, receiver, searchedValue);
             return View(conversation);
@@ -101,7 +109,26 @@ namespace ChattingDesign.Controllers
         {
             try
             {
+                if (file == null)
+                {
+                    return RedirectToAction("Chat");
+                }
+                var currentUser = HttpContext.Session.GetString("CurrentUser");
+                var receiver = HttpContext.Session.GetString("CurrentReceiver");
                 var savedFileRoute = await FileManager.SaveFileAsync(file, Storage.Instance().EnvironmentPath);
+                var fileStream = System.IO.File.OpenRead(savedFileRoute);
+                var multiForm = new MultipartFormDataContent
+                {
+                    { new StreamContent(fileStream), "file", Path.GetFileName(savedFileRoute) }
+                };
+                var response = await Storage.Instance().APIClient.PostAsync("File", multiForm);
+                var result = response.ReasonPhrase;
+                
+                var fileMessage = new Message()
+                {
+                    IsFile = true,
+                    Text = savedFileRoute
+                };
                 return RedirectToAction("Chat");
             }
             catch
@@ -154,7 +181,7 @@ namespace ChattingDesign.Controllers
             }
         }
 
-        private List<Message> GetMessages(string currentUser, string receiver)
+        private List<Message> GetMessages(string currentUser, string receiver, bool isFile)
         {
             try
             {
@@ -163,7 +190,16 @@ namespace ChattingDesign.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var messageList = JsonConvert.DeserializeObject<List<Message>>(response.Content.ReadAsStringAsync().Result);
-                    var conversationMessages = messageList.Where(m => (m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser)).ToList();
+                    var conversationMessages = new List<Message>();
+                    if (isFile)
+                    {
+                        conversationMessages = messageList.Where(m => (m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser) && m.IsFile).ToList();
+                    }
+                    else
+                    {
+                        conversationMessages = messageList.Where(m => (m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser) && !m.IsFile).ToList();
+                    }
+
                     if (conversationMessages.Count != 0)
                     {
                         var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
