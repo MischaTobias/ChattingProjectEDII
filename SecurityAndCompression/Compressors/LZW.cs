@@ -208,11 +208,11 @@ namespace SecurityAndCompression.Compressors
         private long FillDecompressionDictionary(byte[] text)
         {
             int diffChar = 0;
-            for (int i = 1; i < text[0]; i++)
+            for (int i = 0; i < text[0]; i++)
             {
-                diffChar += text[i];                
+                diffChar += text[i + 1];                
             }
-
+            MaxValueLength = text[1 + text[0]];
             for (int i = 0; i < diffChar; i++)
             {
                 DecompressLZWTable.Add(code, new List<byte> { text[1 + text[0] + i]});
