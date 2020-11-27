@@ -1,0 +1,46 @@
+﻿@model API.Models.User
+@{
+    ViewData["Title"] = "Register";
+}
+
+@{
+    Layout = "~/Views/Shared/PrevLayout.cshtml";
+}
+
+<div class="form">
+    <br />
+    <br />
+    <h2>Reg&iacute;strate</h2>
+    <br />
+    @using (Html.BeginForm("Register", "Login", FormMethod.Post))
+    {
+        <form>
+            <div class="form-group">
+                <label for="Username">Usuario</label>
+                <input type="text" class="form-control" name="Username" placeholder="Ingresar usuario">
+            </div>
+            <div class="form-group">
+                <label for="Password">Contraseña</label>
+                <input type="password" class="form-control" name="Password" placeholder="Contraseña">
+            </div>
+            <div class="form-group">
+                <label for="Password">Confirmar contraseña</label>
+                <input type="password" class="form-control" name="confirmPassword" placeholder="Contraseña">
+            </div>
+            <div>
+                <label style="color:red">@ViewBag.Error</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Registrarse</button>
+        </form>
+    }
+    <br />
+</div>
+
+<style type="text/css">
+    .form {
+        margin: 0 auto;
+        width: 600px;
+        text-align: center;
+    }
+</style>

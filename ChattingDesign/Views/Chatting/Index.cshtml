@@ -1,0 +1,19 @@
+﻿@model IEnumerable<API.Models.User>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Escoge alguien para chatear</h2>
+<div style="text-align:right">@Html.ActionLink("Cerrar sesión", "LogOut", "Login")</div>
+<br />
+<ul class="list-group">
+    @foreach (var item in Model)
+    {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            @Html.DisplayFor(modelItem => item.Username)
+            <span>@Html.ActionLink("Chat", "Chat", new { receiver = item.Username })</span>
+        </li>
+    }
+</ul>
+

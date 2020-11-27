@@ -1,0 +1,47 @@
+﻿@model API.Models.User
+@{
+    ViewData["Title"] = "Login";
+}
+
+@{
+    Layout = "~/Views/Shared/PrevLayout.cshtml";
+}
+
+<div class="form">
+    <br />
+    <br />
+    <h2>Inicia Sesi&oacute;n</h2>
+    <br />
+    @using (Html.BeginForm("Login", "Login", FormMethod.Post))
+    {
+        <form>
+            <div class="form-group">
+                <label for="Username">Usuario</label>
+                <input type="text" class="form-control" name="Username" placeholder="Ingresar usuario">               
+            </div>
+            <div class="form-group">
+                <label for="Password">Contraseña</label>
+                <input type="password" class="form-control" name="Password" placeholder="Contraseña">
+            </div>
+            <div>
+                <label style="color:red">@ViewBag.Error</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            
+        </form>
+    }
+    <br />
+
+    <label>¿No tienes una cuenta?</label>
+    @Html.ActionLink("Regístrate", "Register", "Login")
+</div>
+
+
+<style type="text/css">
+    .form {
+        margin: 0 auto;
+        width: 600px;
+        text-align: center;
+    }
+</style>
+

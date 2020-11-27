@@ -1,0 +1,70 @@
+﻿@model Conversation
+
+<br />
+<h2 style="text-align:center">@Html.DisplayFor(model => model.Receiver)</h2>
+<br />
+@using (Html.BeginForm("SearchMessages", "Chatting", FormMethod.Post))
+{
+    <form>
+        <div class="form-group">
+            <label for="Message">Ingresa un mensaje a buscar</label>
+            <input type="text" class="form-control" name="SearchedValue" placeholder="Ingresar mensaje">
+        </div>
+        <div>
+            <label style="color:red">@ViewBag.ErrorMessage</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar mensaje</button>
+        <div></div>
+    </form>
+}
+
+@using (Html.BeginForm("Chat", "Chatting", FormMethod.Post))
+{
+    <form>
+        <div class="form-group">
+            <label for="Message">Ingresa un mensaje a enviar</label>
+            <input type="text" class="form-control" name="Message" placeholder="Ingresar mensaje">
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+        <div style="text-align:right">@Html.ActionLink("Cargar Mensajes", "Chat", new { receiver = Model.Receiver })</div>
+    </form>
+}
+
+<ul class="list-group list-group-horizontal">
+    <li class="list-group-item flex-fill">
+        <ul>
+            @foreach (var item in Model.Messages)
+            {
+                <li>
+                    <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
+                    @Html.DisplayTextFor(modelItem => item.Text)
+                </li>
+            }
+        </ul>
+    </li>
+    <li class="list-group-item flex-fill">
+        <h6>Enviar archivo</h6>
+        @using (Html.BeginForm("UploadFile", "Chatting", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div>
+                @Html.TextBox("file", "", new { type = "file" }) <br />
+
+                <input type="submit" value="Upload" />
+            </div>
+            <div>
+                <label style="color:red">@ViewBag.ErrorMessage</label>
+            </div>
+        }
+
+        <br />
+        <ul>
+            @foreach (var item in Model.Files)
+            {
+                <li>
+                    <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
+                    @Html.DisplayTextFor(modelItem => item.Text) <span>@Html.ActionLink("Download", "DownloadFile", "Chatting", new { message = item.Text })</span>
+                </li>
+            }
+        </ul>
+    </li>
+</ul>

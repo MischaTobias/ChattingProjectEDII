@@ -4,7 +4,7 @@ namespace SecurityAndCompression.Incerfaces
 {
     interface ICompressor
     {
-        Task CompressFile(string savingPath, string filePath);
-        Task DecompressFile(string savingPath, string filePath);
+        string CompressFile(string savingPath, string filePath, string name);
+        string DecompressFile(string savingPath, string filePath, string name);
     }
 }

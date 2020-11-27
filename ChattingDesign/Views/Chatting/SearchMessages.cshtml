@@ -1,0 +1,22 @@
+﻿@model Conversation
+
+<br />
+<h2 style="text-align:center">@Html.DisplayFor(model => model.Receiver)</h2>
+<div>
+    <h4>Mensajes que contienen: </h4>
+    @Html.DisplayFor(model => model.SearchedMessage)
+</div>
+<br />
+
+<ul>
+    @foreach (var item in Model.Messages)
+    {
+        <li>
+            <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
+            @Html.DisplayTextFor(modelItem => item.Text)
+        </li>
+    }   
+</ul>
+
+
+@Html.ActionLink("Regresar al chat", "Chat")
