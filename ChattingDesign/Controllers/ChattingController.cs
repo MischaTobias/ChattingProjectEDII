@@ -67,6 +67,7 @@ namespace ChattingDesign.Controllers
             }
             catch
             {
+                ViewBag.ErrorMessage = "hola";
                 return RedirectToAction("Chat");
             }
         }
@@ -102,7 +103,8 @@ namespace ChattingDesign.Controllers
                 return RedirectToAction("SearchMessages", new { receiver = receiverUser, searchedValue = searched });
             }
             catch
-            {                
+            {
+                ViewBag.ErrorMessage = "Coloque el parámetro a buscar";
                 return RedirectToAction("Chat");
             }
         }
@@ -139,7 +141,8 @@ namespace ChattingDesign.Controllers
                 return RedirectToAction("Chat");
             }
             catch
-            {               
+            {
+                ViewBag.ErrorMessage = "El archivo no es válido.";
                 return RedirectToAction("Chat");
             }
         }
@@ -163,6 +166,7 @@ namespace ChattingDesign.Controllers
             }
             catch
             {
+                ViewBag.ErrorMessage = "El archivo no es válido.";
                 return RedirectToAction("Chat");
             }
         }
