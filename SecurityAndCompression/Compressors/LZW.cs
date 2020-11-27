@@ -59,9 +59,9 @@ namespace SecurityAndCompression.Compressors
             }
         }
 
-        public string CompressFile(string path, string filePath, string name)
+        public string CompressFile(string path, string filePath, string fileName)
         {
-            var compressedFilePath = $"{path}/Compressions/{name}.lzw";
+            var compressedFilePath = $"{path}/Compressions/{fileName}";
             if (System.IO.File.Exists((compressedFilePath)))
             {
                 System.IO.File.Delete((compressedFilePath));
@@ -151,7 +151,7 @@ namespace SecurityAndCompression.Compressors
             {
                 Directory.CreateDirectory($"{path}/Compressions");
             }
-            using var fileToWrite = new FileStream($"{path}/Compressions/{name}.lzw", FileMode.OpenOrCreate);
+            using var fileToWrite = new FileStream($"{path}/Compressions/{fileName}", FileMode.OpenOrCreate);
             using var writer = new BinaryWriter(fileToWrite);
             string compressionCode = "";
             
@@ -218,7 +218,7 @@ namespace SecurityAndCompression.Compressors
                 DecompressLZWTable.Add(code, new List<byte> { text[1 + text[0] + i]});
                 code++;
             }
-            return CompressedText;
+            return 2 + text[0] + diffChar;
         }
 
         private bool CompareListofBytes(List<byte> list1, List<byte> list2)
@@ -257,9 +257,9 @@ namespace SecurityAndCompression.Compressors
             return false;
         }
 
-        public string DecompressFile(string savingPath, string filePath, string name)
+        public string DecompressFile(string savingPath, string filePath, string fileName)
         {
-            var decompressedFilePath = $"{savingPath}/Decompressions/{name}.txt";
+            var decompressedFilePath = $"{savingPath}/Decompressions/{fileName}";
 
             if (System.IO.File.Exists((decompressedFilePath)))
             {
@@ -344,7 +344,7 @@ namespace SecurityAndCompression.Compressors
             {
                 Directory.CreateDirectory($"{filePath}/Decompressions");
             }
-            using var fileToWrite = new FileStream($"{filePath}/Decompressions/{name}", FileMode.OpenOrCreate);
+            using var fileToWrite = new FileStream($"{filePath}/Decompressions/{fileName}", FileMode.OpenOrCreate);
             using var writer = new BinaryWriter(fileToWrite);
             foreach (var index in Codes)
             {

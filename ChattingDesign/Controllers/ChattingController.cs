@@ -118,19 +118,19 @@ namespace ChattingDesign.Controllers
                 var receiver = HttpContext.Session.GetString("CurrentReceiver");
                 var savedFileRoute = await FileManager.SaveFileAsync(file, Storage.Instance().EnvironmentPath, false);
                 var compressor = new LZW();
-                //var compressedFilePath = compressor.CompressFile(Storage.Instance().EnvironmentPath, savedFileRoute, Path.GetFileNameWithoutExtension(savedFileRoute));
-                var fileStream = System.IO.File.OpenRead(savedFileRoute);
+                var compressedFilePath = compressor.CompressFile(Storage.Instance().EnvironmentPath, savedFileRoute, Path.GetFileName(savedFileRoute));
+                var fileStream = System.IO.File.OpenRead(compressedFilePath);
                 var multiForm = new MultipartFormDataContent
                 {
-                    { new StreamContent(fileStream), "file", Path.GetFileName(savedFileRoute) }
+                    { new StreamContent(fileStream), "file", Path.GetFileName(compressedFilePath) }
                 };
                 var response = await Storage.Instance().APIClient.PostAsync("File", multiForm);
                 var fileNameInAPI = await response.Content.ReadAsStringAsync();
                 fileNameInAPI = fileNameInAPI.Remove(0, 1);
                 fileNameInAPI = fileNameInAPI.Remove(fileNameInAPI.Length - 1, 1);
-                //var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
-                //var cipher = new SDES();
-                //var cipheredMessage = cipher.EncryptString(fileNameInAPI, Convert.ToString(SDESKey, 2));
+                var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
+                var cipher = new SDES();
+                var cipheredMessage = cipher.EncryptString(fileNameInAPI, Convert.ToString(SDESKey, 2));
                 var pathMessage = new Message() { Text = fileNameInAPI, IsFile = true, Sender = currentUser, Receiver = receiver };
                 await Storage.Instance().APIClient.PostAsJsonAsync("Chat", pathMessage);
                 return RedirectToAction("Chat");
@@ -146,12 +146,19 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var newMessage = new Message() { Text = message };
+                var currentUser = HttpContext.Session.GetString("CurrentUser");
+                var receiver = HttpContext.Session.GetString("CurrentReceiver");
+                var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
+                var cipher = new SDES();
+                var decipheredMessage = cipher.DecryptString(message, Convert.ToString(SDESKey, 2));
+                var newMessage = new Message() { Text = decipheredMessage };
                 var result = await Storage.Instance().APIClient.PostAsJsonAsync("File/GetFile", newMessage);
                 var fileForDownloading = await result.Content.ReadAsStreamAsync();
                 var route = await FileManager.SaveDownloadedStream(fileForDownloading, Storage.Instance().EnvironmentPath, newMessage.Text);
-                route = Path.GetFullPath(route);
-                var fileArray = System.IO.File.ReadAllBytes(route);
+                var decompressor = new LZW();
+                var decompressedFilePath = decompressor.DecompressFile(Storage.Instance().EnvironmentPath, route, message);
+                decompressedFilePath = Path.GetFullPath(decompressedFilePath);
+                var fileArray = System.IO.File.ReadAllBytes(decompressedFilePath);
                 return File(fileArray, "text/plain", message);
             }
             catch
@@ -231,10 +238,6 @@ namespace ChattingDesign.Controllers
                         {
                             message.Text = cipher.DecryptString(message.Text, Convert.ToString(SDESKey, 2));
                         }
-                        return conversationMessages;
-                    }
-                    else if (conversationMessages.Count != 0)
-                    {
                         return conversationMessages;
                     }
                     else
