@@ -215,7 +215,7 @@ namespace SecurityAndCompression.Compressors
             MaxValueLength = text[1 + text[0]];
             for (int i = 0; i < diffChar; i++)
             {
-                DecompressLZWTable.Add(code, new List<byte> { text[1 + text[0] + i]});
+                DecompressLZWTable.Add(code, new List<byte> { text[2 + text[0] + i]});
                 code++;
             }
             return 2 + text[0] + diffChar;
@@ -340,11 +340,11 @@ namespace SecurityAndCompression.Compressors
             reader.Close();
             readingFile.Close();
 
-            if (!Directory.Exists($"{filePath}/Decompressions"))
+            if (!Directory.Exists($"{savingPath}/Decompressions"))
             {
-                Directory.CreateDirectory($"{filePath}/Decompressions");
+                Directory.CreateDirectory($"{savingPath}/Decompressions");
             }
-            using var fileToWrite = new FileStream($"{filePath}/Decompressions/{fileName}", FileMode.OpenOrCreate);
+            using var fileToWrite = new FileStream($"{savingPath}/Decompressions/{fileName}", FileMode.OpenOrCreate);
             using var writer = new BinaryWriter(fileToWrite);
             foreach (var index in Codes)
             {
