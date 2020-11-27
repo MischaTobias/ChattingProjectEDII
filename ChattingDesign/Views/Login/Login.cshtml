@@ -17,13 +17,17 @@
         <form>
             <div class="form-group">
                 <label for="Username">Usuario</label>
-                <input type="text" class="form-control" name="Username" placeholder="Ingresar usuario">
+                <input type="text" class="form-control" name="Username" placeholder="Ingresar usuario">               
             </div>
             <div class="form-group">
                 <label for="Password">Contraseña</label>
                 <input type="password" class="form-control" name="Password" placeholder="Contraseña">
             </div>
+            <div>
+                <label style="color:red">@ViewBag.Error</label>
+            </div>
             <button type="submit" class="btn btn-primary">Login</button>
+            
         </form>
     }
     <br />

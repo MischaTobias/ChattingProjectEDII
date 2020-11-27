@@ -10,7 +10,11 @@
             <label for="Message">Ingresa un mensaje a buscar</label>
             <input type="text" class="form-control" name="SearchedValue" placeholder="Ingresar mensaje">
         </div>
+        <div>
+            <label style="color:red">@ViewBag.ErrorMessage</label>
+        </div>
         <button type="submit" class="btn btn-primary">Buscar mensaje</button>
+        <div></div>
     </form>
 }
 
@@ -46,6 +50,9 @@
                 @Html.TextBox("file", "", new { type = "file" }) <br />
 
                 <input type="submit" value="Upload" />
+            </div>
+            <div>
+                <label style="color:red">@ViewBag.ErrorMessage</label>
             </div>
         }
 

@@ -56,13 +56,13 @@ namespace ChattingDesign.Controllers
                     }
                     else
                     {
-                        // Mostrar error
+                        ViewBag.Error = "Usuario o contraseña inválidos";
                         return View();
                     }
                 }
                 else
                 {
-                    // Mostrar error
+                    ViewBag.Error = "El usuario no existe, debe registrarse primero.";
                     return View();
                 }
             }
@@ -79,11 +79,11 @@ namespace ChattingDesign.Controllers
             {
                 if (collection["password"] != collection["confirmPassword"])
                 {
-                    //Mostrar error
+                    ViewBag.Error = "Las contraseñas no coinciden";
                     return View();
                 }
                 var newUser = new User(collection["Username"], collection["Password"]);
-                //Mandar a registrar los datos con la API
+                //Mandar a registrar los datos con la API, verificar si el usuario existe;
                 var users = GetUsers().Result.Where(user => user.Username == newUser.Username);
                 if (users.Count() == 0)
                 {

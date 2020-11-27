@@ -48,6 +48,7 @@ namespace ChattingDesign.Controllers
                 var message = collection["Message"];
                 if (message == string.Empty)
                 {
+                    ViewBag.ErrorMessage = "Coloque el parámetro a buscar";
                     return RedirectToAction("Chat");
                 }
                 var currentUser = HttpContext.Session.GetString("CurrentUser");
@@ -94,13 +95,14 @@ namespace ChattingDesign.Controllers
                 var searched = collection["SearchedValue"];
                 if (searched == string.Empty)
                 {
+                    ViewBag.ErrorMessage = "Coloque el parámetro a buscar";
                     return RedirectToAction("Chat");
                 }
                 var receiverUser = HttpContext.Session.GetString("CurrentReceiver");
                 return RedirectToAction("SearchMessages", new { receiver = receiverUser, searchedValue = searched });
             }
             catch
-            {
+            {                
                 return RedirectToAction("Chat");
             }
         }
@@ -112,6 +114,7 @@ namespace ChattingDesign.Controllers
             {
                 if (file == null)
                 {
+                    ViewBag.ErrorMessage = "Seleccione un archivo antes de enviar.";
                     return RedirectToAction("Chat");
                 }
                 var currentUser = HttpContext.Session.GetString("CurrentUser");
@@ -136,7 +139,7 @@ namespace ChattingDesign.Controllers
                 return RedirectToAction("Chat");
             }
             catch
-            {
+            {               
                 return RedirectToAction("Chat");
             }
         }
