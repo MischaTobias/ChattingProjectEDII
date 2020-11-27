@@ -131,7 +131,7 @@ namespace ChattingDesign.Controllers
                 var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
                 var cipher = new SDES();
                 var cipheredMessage = cipher.EncryptString(fileNameInAPI, Convert.ToString(SDESKey, 2));
-                var pathMessage = new Message() { Text = fileNameInAPI, IsFile = true, Sender = currentUser, Receiver = receiver };
+                var pathMessage = new Message() { Text = cipheredMessage, IsFile = true, Sender = currentUser, Receiver = receiver };
                 await Storage.Instance().APIClient.PostAsJsonAsync("Chat", pathMessage);
                 return RedirectToAction("Chat");
             }
@@ -148,10 +148,7 @@ namespace ChattingDesign.Controllers
             {
                 var currentUser = HttpContext.Session.GetString("CurrentUser");
                 var receiver = HttpContext.Session.GetString("CurrentReceiver");
-                var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
-                var cipher = new SDES();
-                var decipheredMessage = cipher.DecryptString(message, Convert.ToString(SDESKey, 2));
-                var newMessage = new Message() { Text = decipheredMessage };
+                var newMessage = new Message() { Text = message };
                 var result = await Storage.Instance().APIClient.PostAsJsonAsync("File/GetFile", newMessage);
                 var fileForDownloading = await result.Content.ReadAsStreamAsync();
                 var route = await FileManager.SaveDownloadedStream(fileForDownloading, Storage.Instance().EnvironmentPath, newMessage.Text);
@@ -227,7 +224,7 @@ namespace ChattingDesign.Controllers
                     }
                     else
                     {
-                        conversationMessages = messageList.Where(m => (m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser) && !m.IsFile).ToList();
+                        conversationMessages = messageList.Where(m => ((m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser)) && !m.IsFile).ToList();
                     }
 
                     if (conversationMessages.Count != 0 && !isFile)
@@ -240,9 +237,15 @@ namespace ChattingDesign.Controllers
                         }
                         return conversationMessages;
                     }
-                    else
+                    else if (conversationMessages.Count != 0)
                     {
-                        return new List<Message>();
+                        var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
+                        var cipher = new SDES();
+                        foreach (var message in conversationMessages)
+                        {
+                            message.Text = cipher.DecryptString(message.Text, Convert.ToString(SDESKey, 2));
+                        }
+                        return conversationMessages;
                     }
                 }
                 return new List<Message>();
