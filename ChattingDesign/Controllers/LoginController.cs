@@ -89,6 +89,11 @@ namespace ChattingDesign.Controllers
                 {
                     await Storage.Instance().APIClient.PostAsJsonAsync("User", newUser);
                 }
+                else
+                {
+                    ViewBag.Error = "El usuario ya existe";
+                    return View();
+                }
                 return RedirectToAction("Login");
             }
             catch
