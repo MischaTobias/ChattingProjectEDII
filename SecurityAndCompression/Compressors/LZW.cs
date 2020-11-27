@@ -154,8 +154,21 @@ namespace SecurityAndCompression.Compressors
             using var fileToWrite = new FileStream($"{path}/Compressions/{name}.lzw", FileMode.OpenOrCreate);
             using var writer = new BinaryWriter(fileToWrite);
             string compressionCode = "";
+            
+            int byteDC = Convert.ToInt32(Differentchar.Count());
+            int byteCount = 1;
+            while (byteDC >= 256) 
+            {
+                byteDC = byteDC - 255;
+                byteCount++;
+            }
+            writer.Write(Convert.ToByte(byteCount));
+            for (int i = 1; i < byteCount; i++)
+            {
+                writer.Write(Convert.ToByte(255));
+            }
+            writer.Write(Convert.ToByte(byteDC));
             writer.Write(Convert.ToByte(MaxValueLength));
-            writer.Write(Convert.ToByte(Differentchar.Count()));
             foreach (var item in Differentchar)
             {
                 writer.Write(item);
@@ -192,9 +205,157 @@ namespace SecurityAndCompression.Compressors
         #endregion
 
         #region Decompression
-        public string DecompressFile(string savingPath, string filePath)
+        private long FillDecompressionDictionary(byte[] text)
         {
-            return string.Empty;
+            int diffChar = 0;
+            for (int i = 1; i < text[0]; i++)
+            {
+                diffChar += text[i];                
+            }
+
+            for (int i = 0; i < diffChar; i++)
+            {
+                DecompressLZWTable.Add(code, new List<byte> { text[1 + text[0] + i]});
+                code++;
+            }
+            return CompressedText;
+        }
+
+        private bool CompareListofBytes(List<byte> list1, List<byte> list2)
+        {
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (list1[i] != list2[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        private List<byte> SetValuesForDecompress(List<byte> values)
+        {
+            List<byte> newList = new List<byte>();
+            foreach (var value in values)
+            {
+                newList.Add(value);
+            }
+            return newList;
+        }
+
+        private bool CheckIfExists(List<byte> actualString)
+        {
+            foreach (var item in DecompressLZWTable.Values)
+            {
+                if (actualString.Count == item.Count)
+                {
+                    if (CompareListofBytes(actualString, item))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public string DecompressFile(string savingPath, string filePath, string name)
+        {
+            var decompressedFilePath = $"{savingPath}/Decompressions/{name}.txt";
+
+            if (System.IO.File.Exists((decompressedFilePath)))
+            {
+                System.IO.File.Delete((decompressedFilePath));
+            }
+
+            if (System.IO.File.Exists($"{savingPath}/Decompressions/"))
+            {
+                System.IO.File.Delete($"{savingPath}/Decompressions/");
+            }
+            ResetVariables();
+            
+            using var readingFile = new FileStream(filePath, FileMode.Open);
+
+            using var reader = new BinaryReader(readingFile);
+            int bufferSize = 2000;
+            var buffer = new byte[bufferSize];
+            readingFile.Position = readingFile.Seek(0, SeekOrigin.Begin);
+            buffer = reader.ReadBytes(bufferSize);
+
+            readingFile.Position = FillDecompressionDictionary(buffer);
+
+            
+            List<int> Codes = new List<int>();
+            string binaryNum = "";
+            DecompressValues.Add(new List<byte>());
+            DecompressValues.Add(new List<byte>());
+            DecompressValues.Add(new List<byte>());
+            while (readingFile.Position != readingFile.Length)
+            {
+                buffer = reader.ReadBytes(bufferSize);
+                foreach (var item in buffer)
+                {
+                    string subinaryNum = Convert.ToString(item, 2);
+                    while (subinaryNum.Length < 8)
+                    {
+                        subinaryNum = "0" + subinaryNum;
+                    }
+                    binaryNum += subinaryNum;
+                    while (binaryNum.Length >= MaxValueLength)
+                    {
+                        var index = Convert.ToInt32(binaryNum.Substring(0, MaxValueLength), 2);
+                        binaryNum = binaryNum.Remove(0, MaxValueLength);
+                        if (index != 0)
+                        {
+                            Codes.Add(index);
+                            DecompressValues[0] = DecompressValues[1];
+                            if (DecompressLZWTable.ContainsKey(index))
+                            {
+                                DecompressValues[1] = SetValuesForDecompress(DecompressLZWTable[index]);
+                                DecompressValues[2].Clear();
+                                foreach (var value in DecompressValues[0])
+                                {
+                                    DecompressValues[2].Add(value);
+                                }
+                                DecompressValues[2].Add(DecompressValues[1][0]);
+                            }
+                            else
+                            {
+                                DecompressValues[1] = DecompressValues[0];
+                                DecompressValues[2].Clear();
+                                foreach (var value in DecompressValues[0])
+                                {
+                                    DecompressValues[2].Add(value);
+                                }
+                                DecompressValues[2].Add(DecompressValues[1][0]);
+                                DecompressValues[1] = SetValuesForDecompress(DecompressValues[2]);
+                            }
+                            if (!CheckIfExists(DecompressValues[2]))
+                            {
+                                DecompressLZWTable.Add(code, new List<byte>(DecompressValues[2]));
+                                code++;
+                            }
+                        }
+                    }
+                }
+            }
+            reader.Close();
+            readingFile.Close();
+
+            if (!Directory.Exists($"{filePath}/Decompressions"))
+            {
+                Directory.CreateDirectory($"{filePath}/Decompressions");
+            }
+            using var fileToWrite = new FileStream($"{filePath}/Decompressions/{name}", FileMode.OpenOrCreate);
+            using var writer = new BinaryWriter(fileToWrite);
+            foreach (var index in Codes)
+            {
+                foreach (var value in DecompressLZWTable[index])
+                {
+                    writer.Write(value);
+                }
+            }
+            writer.Close();
+            fileToWrite.Close();
+            return decompressedFilePath;
         }
         #endregion
     }
