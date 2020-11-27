@@ -47,7 +47,6 @@ namespace ChattingDesign.Controllers
                 var newUser = new User(collection["username"], collection["password"]);
                 if (API.Models.User.CheckValidness(newUser))
                 {
-                    //Mandar a verificar los datos con la API
                     var users = GetUsers().Result.Where(user => user.Username == newUser.Username && user.Password == newUser.Password).ToList();
                     if (users.Count() != 0)
                     {
@@ -83,7 +82,6 @@ namespace ChattingDesign.Controllers
                     return View();
                 }
                 var newUser = new User(collection["Username"], collection["Password"]);
-                //Mandar a registrar los datos con la API, verificar si el usuario existe;
                 var users = GetUsers().Result.Where(user => user.Username == newUser.Username);
                 if (users.Count() == 0)
                 {
