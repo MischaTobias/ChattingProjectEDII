@@ -35,7 +35,6 @@ namespace API.Models
             PublicKey = SDES.GetPublicKey(SecretNumber);
             var cipher = new Cesar();
             Password = cipher.EncryptString(password, "pass");
-            Password = password;
         }
 
         public static bool CheckValidness(User user)

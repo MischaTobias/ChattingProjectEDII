@@ -77,8 +77,6 @@ namespace ChattingDesign.Controllers
         {
             try
             {
-                var one = collection["Password"];
-                var two = collection["confirmPassword"];
                 if (collection["password"] != collection["confirmPassword"])
                 {
                     //Mostrar error
