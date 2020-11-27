@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SecurityAndCompression.Ciphers;
+using SecurityAndCompression.Compressors;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -116,10 +117,12 @@ namespace ChattingDesign.Controllers
                 var currentUser = HttpContext.Session.GetString("CurrentUser");
                 var receiver = HttpContext.Session.GetString("CurrentReceiver");
                 var savedFileRoute = await FileManager.SaveFileAsync(file, Storage.Instance().EnvironmentPath, false);
-                var fileStream = System.IO.File.OpenRead(savedFileRoute);
+                var compressor = new LZW();
+                var compressedFilePath = compressor.CompressFile(Storage.Instance().EnvironmentPath, savedFileRoute, Path.GetFileNameWithoutExtension(savedFileRoute));
+                var fileStream = System.IO.File.OpenRead(compressedFilePath);
                 var multiForm = new MultipartFormDataContent
                 {
-                    { new StreamContent(fileStream), "file", Path.GetFileName(savedFileRoute) }
+                    { new StreamContent(fileStream), "file", Path.GetFileName(compressedFilePath) }
                 };
                 var response = await Storage.Instance().APIClient.PostAsync("File", multiForm);
                 var fileNameInAPI = await response.Content.ReadAsStringAsync();
