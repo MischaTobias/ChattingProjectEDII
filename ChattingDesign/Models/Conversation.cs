@@ -10,10 +10,11 @@ namespace ChattingDesign.Models
     {
         public List<Message> Messages { get; set; }
         public string Receiver { get; set; }
+        public List<Message> Files { get; set; }
 
         public string SearchedMessage { get; set; }
 
-        public Conversation(List<Message> messages, string receiver)
+        public Conversation(List<Message> messages, List<Message> files, string receiver)
         {
             if (messages == null)
             {
@@ -22,6 +23,14 @@ namespace ChattingDesign.Models
             else
             {
                 Messages = messages;
+            }
+            if (files == null)
+            {
+                Files = new List<Message>();
+            }
+            else
+            {
+                Files = files;
             }
             Receiver = receiver;
         }

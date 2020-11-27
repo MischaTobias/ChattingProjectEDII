@@ -34,8 +34,8 @@ namespace ChattingDesign.Controllers
                 receiver = HttpContext.Session.GetString("CurrentReceiver");
             }
             var messages = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver, false);
-            var file = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver, true);
-            var conversation = new Conversation(messages, receiver);
+            var files = GetMessages(HttpContext.Session.GetString("CurrentUser"), receiver, true);
+            var conversation = new Conversation(messages, files, receiver);
             return View(conversation);
         }
 
@@ -122,20 +122,34 @@ namespace ChattingDesign.Controllers
                     { new StreamContent(fileStream), "file", Path.GetFileName(savedFileRoute) }
                 };
                 var response = await Storage.Instance().APIClient.PostAsync("File", multiForm);
-                var path = await response.Content.ReadAsStringAsync();
-                path = path.Remove(0, 1);
-                path = path.Remove(path.Length - 1, 1);
-                var pathMessage = new Message() { Text = path };
-
-                var result = await Storage.Instance().APIClient.PostAsJsonAsync("File/GetFile", pathMessage);
-                var fileForDownloading = await result.Content.ReadAsStreamAsync();
-
-                var fileMessage = new Message()
-                {
-                    IsFile = true,
-                    Text = savedFileRoute
-                };
+                var fileNameInAPI = await response.Content.ReadAsStringAsync();
+                fileNameInAPI = fileNameInAPI.Remove(0, 1);
+                fileNameInAPI = fileNameInAPI.Remove(fileNameInAPI.Length - 1, 1);
+                var SDESKey = SDES.GetSecretKey(GetUserSecretNumber(currentUser), GetUserPublicKey(receiver));
+                var cipher = new SDES();
+                var cipheredMessage = cipher.EncryptString(fileNameInAPI, Convert.ToString(SDESKey, 2));
+                var pathMessage = new Message() { Text = cipheredMessage, IsFile = true, Sender = currentUser, Receiver = receiver };
+                await Storage.Instance().APIClient.PostAsJsonAsync("Chat", pathMessage);
                 return RedirectToAction("Chat");
+            }
+            catch
+            {
+                return RedirectToAction("Chat");
+            }
+        }
+
+        [Route("DownloadFile")]
+        public async Task<ActionResult> DownloadFileAsync(string message)
+        {
+            try
+            {
+                var newMessage = new Message() { Text = message };
+                var result = await Storage.Instance().APIClient.PostAsJsonAsync("File/GetFile", newMessage);
+                var fileForDownloading = await result.Content.ReadAsStreamAsync();
+                var route = await FileManager.SaveDownloadedStream(fileForDownloading, Storage.Instance().EnvironmentPath, newMessage.Text);
+                route = Path.GetFullPath(route);
+                var fileArray = System.IO.File.ReadAllBytes(route);
+                return File(fileArray, "text/plain", message);
             }
             catch
             {
@@ -199,7 +213,7 @@ namespace ChattingDesign.Controllers
                     var conversationMessages = new List<Message>();
                     if (isFile)
                     {
-                        conversationMessages = messageList.Where(m => (m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser) && m.IsFile).ToList();
+                        conversationMessages = messageList.Where(m => ((m.Sender == currentUser && m.Receiver == receiver) || (m.Sender == receiver && m.Receiver == currentUser)) && m.IsFile).ToList();
                     }
                     else
                     {

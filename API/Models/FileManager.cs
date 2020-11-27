@@ -35,5 +35,25 @@ namespace API.Models
             return $"{path}/Uploads/{name}{ext}";
 
         }
+
+        public static async Task<string> SaveDownloadedStream(Stream file, string path, string fileName)
+        {
+            file.Position = 0;
+            string filePath = Path.Combine($"{path}/Downloads", fileName);
+            if (Directory.Exists($"{path}/Downloads"))
+            {
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            else
+            {
+                Directory.CreateDirectory($"{path}/Downloads");
+            }
+            using var outPutFileStream = new FileStream(filePath, FileMode.Create);
+            await file.CopyToAsync(outPutFileStream);
+            return filePath;
+        }
     }
 }

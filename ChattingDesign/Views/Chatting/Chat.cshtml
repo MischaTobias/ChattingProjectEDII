@@ -48,5 +48,16 @@
                 <input type="submit" value="Upload" />
             </div>
         }
+
+        <br />
+        <ul>
+            @foreach (var item in Model.Files)
+            {
+                <li>
+                    <strong>@Html.DisplayFor(modelItem => item.Sender):  </strong>
+                    @Html.DisplayTextFor(modelItem => item.Text) <span>@Html.ActionLink("Download", "DownloadFile", "Chatting", new { message = item.Text })</span>
+                </li>
+            }
+        </ul>
     </li>
 </ul>
