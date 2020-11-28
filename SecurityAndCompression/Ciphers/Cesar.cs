@@ -11,17 +11,6 @@ namespace SecurityAndCompression.Ciphers
         Dictionary<byte, byte> CesarDictionary = new Dictionary<byte, byte>();
         #endregion
 
-        #region FileEncryption
-        public string DecryptFile(string savingPath, string completeFilePath, string key)
-        {
-            throw new NotImplementedException();
-        }
-        public string EncryptFile(string savingPath, string completeFilePath, string key)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-
         #region DictionaryLoad
         private void LoadDictionary(string key, bool encryption)
         {

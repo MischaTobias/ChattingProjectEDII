@@ -41,8 +41,9 @@ namespace SecurityAndCompression.Ciphers
             {
                 key = "0" + key;
             }
-            var Left = LeftShift(key.Substring(0, key.Length / 2));
-            var Right = LeftShift(key.Substring(key.Length / 2, key.Length / 2));
+            var PTenResult = PTen(key);
+            var Left = LeftShift(PTenResult.Substring(0, PTenResult.Length / 2));
+            var Right = LeftShift(PTenResult.Substring(PTenResult.Length / 2, PTenResult.Length / 2));
             K1 = PEigth(Left + Right);
             for (int i = 0; i < 2; i++)
             {
@@ -157,18 +158,6 @@ namespace SecurityAndCompression.Ciphers
         }
         #endregion
 
-        #region FileEncryption
-        public string EncryptFile(string savingPath, string completeFilePath, string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string DecryptFile(string savingPath, string completeFilePath, string key)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-
         #region StringEncryption
         public string EncryptString(string text, string key)
         {
@@ -182,14 +171,16 @@ namespace SecurityAndCompression.Ciphers
                 var EPResult = ExpAndSwap(Right);
                 var XORK = XOR(EPResult, K1);
                 var SwapBoxResult = SwapBoxLeft(XORK.Substring(0, XORK.Length / 2)) + SwapBoxRight(XORK.Substring(XORK.Length / 2, XORK.Length / 2));
-                var XORLeft = XOR(SwapBoxResult, Left);
+                var PFourResult = PFour(SwapBoxResult);
+                var XORLeft = XOR(PFourResult, Left);
                 var SwapResult = Swap(XORLeft + Right);
                 Left = SwapResult.Substring(0, SwapResult.Length / 2);
                 Right = SwapResult.Substring(SwapResult.Length / 2, SwapResult.Length / 2);
                 EPResult = ExpAndSwap(Right);
                 XORK = XOR(EPResult, K2);
                 SwapBoxResult = SwapBoxLeft(XORK.Substring(0, XORK.Length / 2)) + SwapBoxRight(XORK.Substring(XORK.Length / 2, XORK.Length / 2));
-                XORLeft = XOR(SwapBoxResult, Left);
+                PFourResult = PFour(SwapBoxResult);
+                XORLeft = XOR(PFourResult, Left);
                 result += (char)Convert.ToByte(InverseInitialPermutation(XORLeft + Right), 2);
             }
             return result;
@@ -207,14 +198,16 @@ namespace SecurityAndCompression.Ciphers
                 var EPResult = ExpAndSwap(Right);
                 var XORK = XOR(EPResult, K2);
                 var SwapBoxResult = SwapBoxLeft(XORK.Substring(0, XORK.Length / 2)) + SwapBoxRight(XORK.Substring(XORK.Length / 2, XORK.Length / 2));
-                var XORLeft = XOR(SwapBoxResult, Left);
+                var PFourResult = PFour(SwapBoxResult);
+                var XORLeft = XOR(PFourResult, Left);
                 var SwapResult = Swap(XORLeft + Right);
                 Left = SwapResult.Substring(0, SwapResult.Length / 2);
                 Right = SwapResult.Substring(SwapResult.Length / 2, SwapResult.Length / 2);
                 EPResult = ExpAndSwap(Right);
                 XORK = XOR(EPResult, K1);
                 SwapBoxResult = SwapBoxLeft(XORK.Substring(0, XORK.Length / 2)) + SwapBoxRight(XORK.Substring(XORK.Length / 2, XORK.Length / 2));
-                XORLeft = XOR(SwapBoxResult, Left);
+                PFourResult = PFour(SwapBoxResult);
+                XORLeft = XOR(PFourResult, Left);
                 result += (char)Convert.ToByte(InverseInitialPermutation(XORLeft + Right), 2);
             }
             return result;
